@@ -1,0 +1,85 @@
+html {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  margin: 0;
+  font-family: 'Courier New', monospace;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-image: url("../img/background.jpg");
+  padding: 0;
+  height: 100%;
+}
+
+#root, #global-container {
+  height: 100%;
+}
+
+.home-container {
+  height: 100%;
+}
+
+.home-div, .create-div, .session-div {
+  background-image: url("../img/background_darker.jpg");
+  height: 2050px;
+  text-align: center;
+  color: whitesmoke;
+}
+
+.session-div {
+  text-align: left;
+}
+
+#session_table .table{
+  background-image: url("../img/background_lighter.jpg");
+}
+
+.home-panel {
+  width: 400px;
+  height: 400px;
+  background-color: slategray;
+  border-radius: 10px;
+}
+
+.home-panel:hover {
+  cursor: pointer;
+}
+
+#create_sheet {
+  background-image: url("../img/background_lighter.jpg");
+  color: black;
+}
+
+#player_list li{
+  margin: 5px;
+}
+
+#initative_chooser {
+  text-align: right;
+}
+
+#initative_chooser li {
+  margin: 5px;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+
+output {
+  font-size: 40px;
+  color: red;
+}
+
+#character_creation_form {
+  margin-bottom: 100px;
+}
+
+#character_creation_form > div {
+  margin: 0px 100px;
+}
