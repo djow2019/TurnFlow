@@ -3,7 +3,7 @@
 TurnFlow is an initiative management system to improve the experience of playing table top RPGs like Dungeons and Dragons and Pathfinder. In order to use this service, please login with a google account in the upper right. Then, you may create a character to use for your sessions by clicking "Create Character", and then you can host or join a session by clicking "Host or Join Session".
 
 ## Features
-- Create basic character to be tracked in a sessino
+- Create basic character to be tracked in a session
 - Create a session as host
 - Join a session as host
 - Modify Initiative Order for players in session
