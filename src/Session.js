@@ -135,25 +135,31 @@ export class Session extends React.Component {
             let uid = this.state.uid;
             let ctrl = this;
             this.database.read("/sessions/" + sid + "/players", function(response) {
-                let length = Object.keys(response).length;
 
-                let found = false;
-                for (let key in response) {
-                    if (key == uid) {
-                        found = true;
+                let length;
+                if (response) {
+                    length = Object.keys(response).length;
+
+                    let found = false;
+                    for (let key in response) {
+                        if (key == uid) {
+                            found = true;
+                        }
                     }
-                }
 
-                if (found) {
-                    console.log(uid + " character " + character + " has been written to session");
+                    if (found) {
+                        console.log(uid + " character " + character + " has been written to session");
 
-                    document.getElementById("session_title").innerHTML = data.name;
-                    document.getElementById("options").classList.add("d-none");
-                    document.getElementById("session_details").classList.remove("invisible");
-                    document.getElementById("dm_controls").classList.add("d-none");
-                    ctrl.setState({sessionId: sid});
-                    ctrl.updateStateClient(data);
-                    return;
+                        document.getElementById("session_title").innerHTML = data.name;
+                        document.getElementById("options").classList.add("d-none");
+                        document.getElementById("session_details").classList.remove("invisible");
+                        document.getElementById("dm_controls").classList.add("d-none");
+                        ctrl.setState({sessionId: sid});
+                        ctrl.updateStateClient(data);
+                        return;
+                    }
+                } else {
+                    length = 0;
                 }
 
                 ctrl.database.write("/sessions/" + sid + "/players/" + uid, {"character": character, "order": length}).then(function(response) {
@@ -328,23 +334,23 @@ export class Session extends React.Component {
         let sid = Math.floor(Math.random() * 1000000);
 
         if (this.state.uid) {
-            let uid = this.state.uid;
-            let data = {"name": sname, "this.state.paused": true, "this.state.timer": 45};
+            let data = {"name": sname, "paused": true, "timer": 45};
+            let ctrl = this;
             this.database.write("/sessions/" + sid, data).then(function(response) {
                 // success
-                document.getElementById("create_session_div").classList.add("invisible");
+                document.getElementById("create_session_div").classList.add("d-none");
                 document.getElementById("session_title").innerHTML = data.name;
-                document.getElementById("options").classList.add("invisible");
+                document.getElementById("options").classList.add("d-none");
                 document.getElementById("session_details").classList.remove("invisible");
-                this.state.sessionId = sid;
+                ctrl.state.sessionId = sid;
 
-                this.state.time = data.this.state.timer;
-                this.state.paused = data.this.state.paused;
+                ctrl.state.time = data.timer;
+                ctrl.state.paused = data.paused;
 
-                document.getElementById("time_output").innerHTML = this.state.time;
+                document.getElementById("time_output").innerHTML = ctrl.state.time;
                 document.getElementById("player_turn").innerHTML = "No Current Players";
 
-                this.checkForConnectingPlayers();
+                ctrl.checkForConnectingPlayers();
 
             }, function(error){
                 console.log("Something went wrong creating session");
