@@ -7,226 +7,42 @@ export class Create extends React.Component {
     constructor(props) {
         super(props);
 
-        this.state = {classes: null, deities: null, feats: null, races: null, spells: null, uid: null, reference: null};
-        this.database = new Database();
+        this.state = {
+            uid: null,
+            reference: null
+        };
 
-        this.onReferenceClick = this.onReferenceClick.bind(this);
-        this.loadData = this.loadData.bind(this);
-        this.loadDeities = this.loadDeities.bind(this);
-        this.loadFeats = this.loadFeats.bind(this);
-        this.loadRaces = this.loadRaces.bind(this);
-        this.loadSpells = this.loadSpells.bind(this);
-        this.loadClasses = this.loadClasses.bind(this);
-        this.saveCharacter = this.saveCharacter.bind(this);
     }
 
     componentDidMount() {
         let ctrl = this;
 
         if (firebase.auth().currentUser) {
-            this.state.uid = firebase.auth().currentUser.uid;
+            this.setState({uid: firebase.auth().currentUser.uid});
         }
 
         firebase.auth().onAuthStateChanged(function (user) {
             if (user) {
-                ctrl.state.uid = user.uid;
+                ctrl.setState({uid: user.uid});
+            } else {
+                ctrl.setState({uid: null});
             }
+
         });
-    }
 
-    onReferenceClick() {
-        let form = document.getElementById("reference_form").elements;
-        for (let i = 0; i < form.length; i++) {
-            if (form[i].checked) {
-                this.state.reference = form[i].value;
-                this.loadData(this.state.reference);
-            }
-        }
-    }
-
-    loadData(reference) {
-        if (reference == "dd4e" || reference== "pathfinder") {
-            document.getElementById("race_select_div").classList.add("invisible");
-            document.getElementById("class_select_div").classList.add("invisible");
-            document.getElementById("deity_select_div").classList.add("invisible");
-            document.getElementById("feat_select_div").classList.add("invisible");
-            document.getElementById("spell_select_div").classList.add("invisible");
-            console.log("dd4e and pathfinder not supported at this time");
-            return;
-        }
-
-        if (this.state.uid) {
-            let ctrl = this;
-            this.database.read("/references/" + reference, function(response) {
-                if (response != null) {
-                    ctrl.state.classes = response.classes;
-                    ctrl.state.deities = response.deities;
-                    ctrl.state.feats = response.feats;
-                    ctrl.state.races = response.races;
-                    ctrl.state.spells = response.spells;
-
-                    ctrl.loadClasses();
-                    ctrl.loadDeities();
-                    ctrl.loadFeats();
-                    ctrl.loadRaces();
-                    ctrl.loadSpells();
-                } else {
-                    console.log("Something went wrong reading reference " + reference);
-                }
-            });
-        } else {
-            console.log("User is not signed in, cannot load references");
-        }
-    }
-
-    loadClasses() {
-        let form = document.getElementById("class_form");
-        for (let i = 0; i < form.children.length; i++) {
-            form.removeChild(form.children[i]);
-            i--;
-        }
-
-        for (let key in this.state.classes) {
-            let el = document.createElement("label");
-            el.innerHTML = `<input type="radio" name="class_select" value="${key}"> ${key}`;
-            form.appendChild(document.createElement("br"));
-            form.appendChild(el);
-        }
-
-        document.getElementById("class_select_div").classList.remove("invisible");
-
-    }
-
-    loadDeities() {
-        let form = document.getElementById("deity_form");
-        for (let i = 0; i < form.children.length; i++) {
-            form.removeChild(form.children[i]);
-            i--;
-        }
-        for (let key in this.state.deities) {
-            let el = document.createElement("label");
-            el.innerHTML = `<input type="radio" name="deity_select" value="${key}"> ${key}`;
-            form.appendChild(document.createElement("br"));
-            form.appendChild(el);
-        }
-
-        document.getElementById("deity_select_div").classList.remove("invisible");
-
-    }
-
-    loadRaces() {
-        let form = document.getElementById("race_form");
-        for (let i = 0; i < form.children.length; i++) {
-            form.removeChild(form.children[i]);
-            i--;
-        }
-        for (let key in this.state.races) {
-            let el = document.createElement("label");
-            el.innerHTML = `<input type="radio" name="race_select" value="${key}"> ${key}`;
-            form.appendChild(document.createElement("br"));
-            form.appendChild(el);
-        }
-
-        document.getElementById("race_select_div").classList.remove("invisible");
-
-    }
-
-    loadSpells() {
-        let form = document.getElementById("spell_form");
-        for (let i = 0; i < form.children.length; i++) {
-            form.removeChild(form.children[i]);
-            i--;
-        }
-        for (let key in this.state.spells) {
-            let el = document.createElement("label");
-            el.innerHTML = `<input type="radio" name="spell_select" value="${key}"> ${key}`;
-            form.appendChild(document.createElement("br"));
-            form.appendChild(el);
-        }
-
-        document.getElementById("spell_select_div").classList.remove("invisible");
-
-    }
-
-    loadFeats() {
-        let form = document.getElementById("feat_form");
-        for (let i = 0; i < form.children.length; i++) {
-            form.removeChild(form.children[i]);
-            i--;
-        }
-        for (let key in this.state.feats) {
-            let el = document.createElement("label");
-            el.innerHTML = `<input type="radio" name="feat_select" value="${key}"> ${key}`;
-            form.appendChild(document.createElement("br"));
-            form.appendChild(el);
-        }
-
-        document.getElementById("feat_select_div").classList.remove("invisible");
-
-    }
-
-    saveCharacter() {
-
-        if (!this.state.uid) {
-            alert("Please Login before proceeding");
-            return;
-        }
-
-        // character_creation_form
-        let reference = this.state.reference;
-
-        let data = {
-            "name": document.getElementById("name").value,
-            "strength": document.getElementById("strength").value,
-            "dexterity": document.getElementById("dexterity").value,
-            "constitution": document.getElementById("constitution").value,
-            "wisdom": document.getElementById("wisdom").value,
-            "intelligence": document.getElementById("intelligence").value,
-            "charisma": document.getElementById("charisma").value,
-            "hp": document.getElementById("hp").value,
-            "ac": document.getElementById("ac").value,
-            "reference": reference
-        };
-
-        if (data.name == "") {
-            console.log("Name is empty!");
-            alert("Character name cannot be blank!");
-            return;
-        }
-
-        if (reference == null || reference == "") {
-            console.log("No reference selected!");
-            alert("You must select DND 5E");
-            return;
-        }
-
-        let attributes = ["class", "race", "feat", "deity", "spell"];
-        for (let i = 0; i < attributes.length; i++) {
-            let attribute = attributes[i];
-            let form = document.getElementById(attribute + "_form").elements;
-            for (let j = 0; j < form.length; j++) {
-                if (form[j].checked) {
-                    data[attribute] = form[j].value;
-                    break;
-                }
-            }
-        }
-
-        if (this.state.uid) {
-            let uid = this.state.uid;
-            this.database.write("/users/" + uid + "/characters/" + data.name, data).then(function(response) {
-                console.log(uid + " character " + data.name + " has been written to database");
-                document.getElementById("character_creation_form").classList.add("d-none");
-                document.getElementById("character_success_form").classList.remove("d-none");
-            }, function(error){
-                console.log("Something went wrong writing " + data.name + " to database");
-                console.log(error);
-                alert("Something went wrong. Please contact an admin if this issue persists.");
-            })
-        };
     }
 
     render() {
+
+        let reference = (<div>Please select a reference book.</div>);
+        if (this.state.reference === "dd4e") {
+            reference = (<DND4EComponent></DND4EComponent>)
+        } else if (this.state.reference === "pathfinder") {
+            reference = (<PathfinderComponent></PathfinderComponent>)
+        } else if (this.state.reference === "dd5e") {
+            reference = (<DND5EComponent uid={this.state.uid}></DND5EComponent>);
+        }
+
 
         return (
             <div className="container create-div">
@@ -317,60 +133,217 @@ export class Create extends React.Component {
                             <hr/>
                             <form id="reference_form">
                                 <label>
-                                    <input type="radio" name="ref_select" value="dd4e" onClick={this.onReferenceClick}/>
-                                    DND 4E
+                                    <input type="radio" name="ref_select" value="dd4e" onClick={() => this.setState({reference: "dd4e"})}/>
+                                    &nbsp;DND 4E
                                 </label>
                                 <br/>
                                 <label>
-                                    <input type="radio" name="ref_select" value="dd5e" onClick={this.onReferenceClick}/>
-                                    DND 5E
+                                    <input type="radio" name="ref_select" value="dd5e" onClick={() => this.setState({reference: "dd5e"})}/>
+                                    &nbsp;DND 5E
                                 </label>
                                 <br/>
                                 <label>
-                                    <input type="radio" name="ref_select" value="pathfinder"
-                                           onClick={this.onReferenceClick}/>
-                                    Pathfinder
+                                    <input type="radio" name="ref_select" value="pathfinder" onClick={() => this.setState({reference: "pathfinder"})}/>
+                                    &nbsp;Pathfinder
                                 </label>
                                 <br/>
                             </form>
-
-
-                            <div id="race_select_div" className="invisible">
-                                <hr/>
-                                <h5>Race</h5>
-                                <form id="race_form"></form>
-                            </div>
-
-                            <div id="class_select_div" className="invisible">
-                                <hr/>
-                                <h5>Class</h5>
-                                <form id="class_form"></form>
-                            </div>
-
-                            <div id="feat_select_div" className="invisible">
-                                <hr/>
-                                <h4>Feat(s)</h4>
-                                <form id="feat_form"></form>
-                            </div>
-
-                            <div id="deity_select_div" className="invisible">
-                                <hr/>
-                                <h4>Deity</h4>
-                                <form id="deity_form"></form>
-                            </div>
-
-                            <div id="spell_select_div" className="invisible">
-                                <hr/>
-                                <h4>Spells</h4>
-                                <form id="spell_form"></form>
-                            </div>
+                            {reference}
                         </div>
-                        <div className="my-3">
-                            <input type="button" id="submit_character" value="Submit" onClick={this.saveCharacter}/><br/>
-                        </div>
-
                     </div>
                 </div>
+            </div>
+        );
+    }
+}
+
+class DND5EComponent extends React.Component {
+
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            classes: <div></div>,
+            deities: <div></div>,
+            feats: <div></div>,
+            races: <div></div>,
+            spells: <div></div>
+        };
+
+        this.data = {
+            "class": "",
+            "deity": "",
+            "feat": "",
+            "race": "",
+            "spell": ""
+        };
+
+        this.oldUid = this.props.uid;
+        this.database = new Database();
+
+        this.updateFields = this.updateFields.bind(this);
+    }
+
+    updateFields() {
+        if (this.props.uid) {
+            let ctrl = this;
+            this.database.read("/references/dd5e", function (response) {
+                if (response != null) {
+
+                    let classes = Object.keys(response.classes).map((key) => (
+                        <div key={key}><label><input type="radio" name="class_select" value={key} onClick={() => ctrl.data.class = key}/>&nbsp;{key}</label></div>));
+                    let deities = Object.keys(response.deities).map((key) => (
+                        <div key={key}><label><input type="radio" name="deity_select" value={key} onClick={() => ctrl.data.deity = key}/>&nbsp;{key}</label></div>));
+                    let feats = Object.keys(response.feats).map((key) => (
+                        <div key={key}><label><input type="radio" name="race_select" value={key} onClick={() => ctrl.data.race = key}/>&nbsp;{key}</label></div>));
+                    let races = Object.keys(response.races).map((key) => (
+                        <div key={key}><label><input type="radio" name="spell_select" value={key} onClick={() => ctrl.data.spell = key}/>&nbsp;{key}</label></div>));
+                    let spells = Object.keys(response.spells).map((key) => (
+                        <div key={key}><label><input type="radio" name="feat_select" value={key} onClick={() => ctrl.data.feat = key}/>&nbsp;{key}</label></div>));
+
+                    ctrl.setState({
+                        classes: classes,
+                        deities: deities,
+                        feats: feats,
+                        races: races,
+                        spells: spells
+                    });
+                } else {
+                    console.log("Something went wrong reading reference dd5e");
+                }
+            });
+        } else {
+            let ctrl = this;
+            setTimeout(function () {
+                ctrl.setState({
+                    classes: <div></div>,
+                    deities: <div></div>,
+                    feats: <div></div>,
+                    races: <div></div>,
+                    spells: <div></div>
+                });
+            }, 500);
+        }
+    }
+
+    componentDidMount() {
+        this.updateFields();
+    }
+
+    render() {
+
+        if (this.props.uid !== this.oldUid) {
+            this.oldUid = this.props.uid;
+            this.updateFields();
+        }
+
+        let save = <div>Please Login to Save your character</div>;
+        if (this.props.uid) {
+            save = <SaveComponent uid={this.props.uid} data={this.data} reference={"dd5e"}></SaveComponent>;
+        }
+
+        return (<div>
+            <div id="race_select_div">
+                <hr/>
+                <h5>Race</h5>
+                <form id="race_form">{this.state.races}</form>
+            </div>
+
+            <div id="class_select_div">
+                <hr/>
+                <h5>Class</h5>
+                <form id="class_form">{this.state.classes}</form>
+            </div>
+
+            <div id="feat_select_div">
+                <hr/>
+                <h4>Feat(s)</h4>
+                <form id="feat_form">{this.state.feats}</form>
+            </div>
+
+            <div id="deity_select_div">
+                <hr/>
+                <h4>Deity</h4>
+                <form id="deity_form">{this.state.deities}</form>
+            </div>
+
+            <div id="spell_select_div">
+                <hr/>
+                <h4>Spells</h4>
+                <form id="spell_form">{this.state.spells}</form>
+            </div>
+            {save}
+        </div>);
+    }
+}
+
+class DND4EComponent extends React.Component {
+    render() {
+        return <div>Currently not supported!</div>;
+    }
+}
+
+class PathfinderComponent extends React.Component {
+    render() {
+        return <div>Currently not supported!</div>;
+    }
+}
+
+class SaveComponent extends React.Component {
+
+    constructor(props) {
+        super(props);
+
+        this.saveCharacter = this.saveCharacter.bind(this);
+        this.database = new Database();
+    }
+
+
+    saveCharacter() {
+
+        if (!this.props.uid) {
+            alert("Please Login before proceeding");
+            return;
+        }
+
+        let data = {
+            "name": document.getElementById("name").value,
+            "strength": document.getElementById("strength").value,
+            "dexterity": document.getElementById("dexterity").value,
+            "constitution": document.getElementById("constitution").value,
+            "wisdom": document.getElementById("wisdom").value,
+            "intelligence": document.getElementById("intelligence").value,
+            "charisma": document.getElementById("charisma").value,
+            "hp": document.getElementById("hp").value,
+            "ac": document.getElementById("ac").value,
+            "reference": this.props.reference
+        };
+
+        if (data.name === "") {
+            console.log("Name is empty!");
+            alert("Character name cannot be blank!");
+            return;
+        }
+
+        if (this.props.data) {
+            for (let [key, value] of Object.entries(this.props.data)) {
+                data[key] = value;
+            }
+        }
+
+        this.database.write("/users/" + this.props.uid + "/characters/" + data.name, data).then(function (response) {
+            document.getElementById("character_creation_form").classList.add("d-none");
+            document.getElementById("character_success_form").classList.remove("d-none");
+        }, function (error) {
+            console.log(error);
+            alert("Something went wrong. Please contact an admin if this issue persists.");
+        })
+    }
+
+    render() {
+        return (
+            <div className="my-3">
+                <input type="button" id="submit_character" value="Submit" onClick={this.saveCharacter}/><br/>
             </div>
         );
     }
