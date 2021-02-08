@@ -84,15 +84,16 @@ export class Session extends React.Component {
             uuid_character_dict: {},
             time: null,
             turnOrder: [],
-            changeInitiativeTurnOrder: [],
             paused: false,
             sessionName: "Session",
             dm: null,
             characterSelected: false,
             onDeckList: [],
-            setTurnList: []
+            setTurnList: [],
+            changeInitiativeList: []
         };
         this.database = new Database();
+        this.changeInitiativeTurnOrder = [];
 
         this.manageConnectingPlayers = this.manageConnectingPlayers.bind(this);
         this.updateTime = this.updateTime.bind(this);
@@ -102,7 +103,6 @@ export class Session extends React.Component {
         this.pause = this.pause.bind(this);
         this.setTurn = this.setTurn.bind(this);
         this.changeInitiative = this.changeInitiative.bind(this);
-        this.updateChangeInitiativeList = this.updateChangeInitiativeList.bind(this);
         this.shiftUp = this.shiftUp.bind(this);
         this.shiftDown = this.shiftDown.bind(this);
         this.updateStateClient = this.updateStateClient.bind(this);
@@ -122,6 +122,7 @@ export class Session extends React.Component {
             // new user or first this.state.time user
             if (response == null) {
                 ctrl.setState({turnOrder: []});
+                ctrl.changeInitiativeTurnOrder = [];
             } else {
 
                 let connectedPlayers = Object.keys(response);
@@ -157,6 +158,7 @@ export class Session extends React.Component {
         let ctrl = this;
         this.database.write("/sessions/" + this.state.sessionId + "/turnOrder", turnOrder).then(function (success) {
             ctrl.setState({turnOrder: turnOrder});
+            ctrl.changeInitiativeTurnOrder = turnOrder;
         }, function (failure) {
             alert("Failed to update player list.");
         });
@@ -262,82 +264,39 @@ export class Session extends React.Component {
         if (!this.state.paused) {
             this.pause();
         }
-        this.state.turnOrder = [];
-        for (let i = 0; i < this.state.changeInitiativeTurnOrder.length; i++) {
-            this.state.turnOrder.push(this.state.changeInitiativeTurnOrder[i]);
-        }
-
-        this.setTurnOrder();
-        this.updateLocalPlayerList();
-        this.updateSetTurnList();
+        this.updateTurnOrder(this.changeInitiativeTurnOrder);
     }
 
-    updateChangeInitiativeList() {
-        let el = document.getElementById("initative_chooser");
-        el.innerHTML = "";
-        this.state.changeInitiativeTurnOrder = [];
-        let ctrl = this;
-        for (let i = 0; i < this.state.turnOrder.length; i++) {
+    shiftUp(uid) {
 
-            const character = this.state.turnOrder[i];
-
-            let li = document.createElement("li");
-            let p = document.createElement("span");
-            p.innerHTML = character;
-            li.appendChild(p);
-
-            let button = document.createElement("button");
-            button.classList.add("btn", "btn-warning", "mx-3");
-
-            button.onclick = function () {
-                ctrl.shiftUp(character);
-            };
-            button.innerHTML = "Up";
-            li.appendChild(button);
-
-            button = document.createElement("button");
-            button.classList.add("btn", "btn-warning", "mx-3");
-            button.onclick = function () {
-                ctrl.shiftDown(character);
-            };
-            button.innerHTML = "Down";
-            li.appendChild(button);
-
-            el.appendChild(li);
-            this.state.changeInitiativeTurnOrder.push(this.state.turnOrder[i]);
-        }
-    }
-
-    shiftUp(character) {
-
-        let index = this.state.changeInitiativeTurnOrder.indexOf(character);
+        let index = this.changeInitiativeTurnOrder.indexOf(uid);
 
         if (index == 0) {
             return;
         }
 
-        let el = document.getElementById("initative_chooser");
-        let child = el.removeChild(el.children[index]);
-        el.insertBefore(child, el.children[index - 1]);
+        let turnOrder = this.state.changeInitiativeList;
+        turnOrder = turnOrder.slice(0, index-1).concat(turnOrder[index]).concat(turnOrder[index-1]).concat(turnOrder.slice(index + 1));
+        this.setState({changeInitiativeList: turnOrder});
 
-        this.state.changeInitiativeTurnOrder[index] = this.state.changeInitiativeTurnOrder[index - 1];
-        this.state.changeInitiativeTurnOrder[index - 1] = character;
+        this.changeInitiativeTurnOrder[index] = this.changeInitiativeTurnOrder[index - 1];
+        this.changeInitiativeTurnOrder[index - 1] = uid;
     }
 
-    shiftDown(character) {
+    shiftDown(uid) {
 
-        let index = this.state.changeInitiativeTurnOrder.indexOf(character);
+        let index = this.changeInitiativeTurnOrder.indexOf(uid);
 
-        if (index == this.state.changeInitiativeTurnOrder.length - 1) {
+        if (index ==  this.changeInitiativeTurnOrder.length - 1) {
             return;
         }
 
-        let el = document.getElementById("initative_chooser");
-        let child = el.removeChild(el.children[index]);
-        el.insertBefore(child, el.children[index + 1]);
+        let turnOrder = this.state.changeInitiativeList;
+        turnOrder = turnOrder.slice(0, index).concat(turnOrder[index + 1]).concat(turnOrder[index]).concat(turnOrder.slice(index + 2));
+        this.setState({changeInitiativeList: turnOrder});
 
-        this.state.changeInitiativeTurnOrder[index] = this.state.changeInitiativeTurnOrder[index + 1];
-        this.state.changeInitiativeTurnOrder[index + 1] = character;
+        this.changeInitiativeTurnOrder[index] = this.changeInitiativeTurnOrder[index + 1];
+        this.changeInitiativeTurnOrder[index + 1] = uid;
     }
 
     joinSessionAsPlayer(characterData) {
@@ -355,7 +314,7 @@ export class Session extends React.Component {
     joinSessionAsDM() {
         this.manageConnectingPlayers();
         this.updateStateClient();
-        this.updateStateHost()
+        this.updateStateHost();
     }
 
     async showCharacterModal(dm) {
@@ -389,7 +348,18 @@ export class Session extends React.Component {
 
                 let onDeckList = [];
                 let setTurnList = [];
+                let changeInitiativeList = ctrl.state.changeInitiativeList;
+                let changeInitiativeTurnOrder = ctrl.changeInitiativeTurnOrder;
+                let changeInitiative = false;
+
                 if (response.turnOrder) {
+
+                    if (ctrl.changeInitiativeTurnOrder.length == 0 || ctrl.state.turnOrder.length != response.turnOrder.length) {
+                        changeInitiative = true;
+                        changeInitiativeList = [];
+                        changeInitiativeTurnOrder = [];
+                    }
+
                     for (let i = 0; i < response.turnOrder.length; i++) {
 
                         if (!response.turnOrder[i]) {
@@ -408,8 +378,23 @@ export class Session extends React.Component {
                         setTurnList.push((
                             <button key={i} className="btn btn-info my-2 mx-2" onClick={() => ctrl.setTurn(response.turnOrder[i])}>{charName}</button>
                         ));
+
+                        if (changeInitiative) {
+                            changeInitiativeList.push((
+                                <li key={i}>
+                                    <span>{charName}</span>
+                                    <button className="btn btn-warning mx-3" onClick={() => ctrl.shiftUp(response.turnOrder[i])}>Up</button>
+                                    <button className="btn btn-warning mx-3" onClick={() => ctrl.shiftDown(response.turnOrder[i])}>Down</button>
+                                </li>
+                            ));
+
+                            changeInitiativeTurnOrder.push(response.turnOrder[i]);
+                        }
+
                     }
                 }
+
+                ctrl.changeInitiativeTurnOrder = changeInitiativeTurnOrder;
 
                 ctrl.setState({
                     sessionName: response.name,
@@ -419,9 +404,11 @@ export class Session extends React.Component {
                     turnOrder: response.turnOrder ? response.turnOrder : [],
                     dm: response.dm,
                     onDeckList: onDeckList,
-                    setTurnList: setTurnList
+                    setTurnList: setTurnList,
+                    changeInitiativeList: changeInitiativeList
                 });
             } else {
+                ctrl.changeInitiativeTurnOrder = [];
                 ctrl.setState({
                     sessionName: "Session",
                     paused: true,
@@ -430,7 +417,8 @@ export class Session extends React.Component {
                     turnOrder: [],
                     dm: null,
                     onDeckList: [],
-                    setTurnList: []
+                    setTurnList: [],
+                    changeInitiativeList: []
                 });
             }
         });
@@ -479,7 +467,7 @@ export class Session extends React.Component {
                                 Initiative
                             </button>
                             <br/>
-                            <ol id="initative_chooser"></ol>
+                            <ol id="initative_chooser">{this.state.changeInitiativeList}</ol>
                         </div>
                     </div>
                 );
