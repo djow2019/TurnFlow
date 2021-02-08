@@ -8,7 +8,9 @@ import {Header} from './Header.js';
 import Home from './Home.js';
 import Footer from './Footer.js';
 import {Create} from './Create.js';
+import {SessionList} from './SessionList.js';
 import {Session} from './Session.js';
+
 import {
     BrowserRouter as Router,
     Switch,
@@ -25,8 +27,10 @@ ReactDOM.render(
                   <Route path="/create">
                       <Create />
                   </Route>
+                  <Route path="/session/:id" component={Session}>
+                  </Route>
                   <Route path="/session">
-                      <Session />
+                      <SessionList />
                   </Route>
                   <Route path="/">
                       <Home />

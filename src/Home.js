@@ -13,7 +13,7 @@ class Panel extends React.Component {
     render() {
 
         return (
-            <div class="home-panel" onClick={() => window.location = "/" + this.link}>
+            <div className="home-panel" onClick={() => window.location = "/" + this.link}>
                 <h3>{this.title}</h3>
                 <div style={{height: 100}}></div>
                 <p>{this.description}</p>
