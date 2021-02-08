@@ -1,32 +1,37 @@
 html {
-  height: 100%;
   margin: 0;
   padding: 0;
 }
 
 body {
   margin: 0;
-  font-family: 'Courier New', monospace;
+  font-family: 'Courier New', monospace !important;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background-image: url("../img/background.jpg");
   padding: 0;
-  height: 100%;
 }
 
-#root, #global-container {
-  height: 100%;
+.my-nav {
+  background-image: url("../img/dice_fabric.png");
 }
 
-.home-container {
-  height: 100%;
+.my-nav a, .my-nav .social-media li, #g-signin {
+  background: #000000;
+  border-radius: 5px;
+  padding: 10px;
+  color: whitesmoke;
 }
 
 .home-div, .create-div, .session-div {
   background-image: url("../img/background_darker.jpg");
-  height: 2050px;
+  height: 1000px;
   text-align: center;
   color: whitesmoke;
+}
+
+#create_sheet, .create-div {
+    height: 1900px;
 }
 
 .session-div {

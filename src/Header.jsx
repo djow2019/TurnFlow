@@ -5,7 +5,7 @@ export class Header extends React.Component {
 
     render() {
         return (
-            <nav className="navbar navbar-light bg-light static-top">
+            <nav className="navbar my-nav static-top">
                 <div className="container">
                     <a className="navbar-brand" href="/">TurnFlow</a>
                     <a className="navbar-text" href="/create">Create Character</a>

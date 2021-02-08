@@ -195,7 +195,7 @@ export class SessionList extends React.Component {
         }
 
         return (
-            <div className="container my-3 session-div">
+            <div className="container session-div">
                 <h1 className="text-center">Campaign Select</h1>
                 {selectChoice}
             </div>

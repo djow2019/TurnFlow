@@ -1,4 +1,6 @@
 import React from "react";
+import createLogo from './img/create.png';
+import joinLogo from './img/create.png';
 
 class Panel extends React.Component {
 
@@ -8,6 +10,7 @@ class Panel extends React.Component {
         this.link = this.props.link;
         this.description = this.props.description;
         this.title = this.props.title;
+        this.imgLink = this.props.imgLink;
     }
 
     render() {
@@ -15,7 +18,7 @@ class Panel extends React.Component {
         return (
             <div className="home-panel" onClick={() => window.location = "/" + this.link}>
                 <h3>{this.title}</h3>
-                <div style={{height: 100}}></div>
+                <img src={this.imgLink} title={this.title}/>
                 <p>{this.description}</p>
             </div>
         )
@@ -35,10 +38,10 @@ function Home() {
                 <br/>
                 <div className="row">
                     <div className="col-6 d-flex justify-content-around">
-                        <Panel title="Create" link={"create"} description={"Create a character!"}></Panel>
+                        <Panel title="Create" link={"create"} description={"Create a character!"} imgLink={createLogo}></Panel>
                     </div>
                     <div className="col-6 d-flex justify-content-around">
-                        <Panel title="Session" link={"session"} description={"Host or join a session!"}></Panel>
+                        <Panel title="Session" link={"session"} description={"Host or join a session!"} imgLink={joinLogo}></Panel>
                     </div>
                 </div>
             </div>

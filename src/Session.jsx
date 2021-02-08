@@ -495,7 +495,7 @@ export class Session extends React.Component {
 
             element = (
                 <div>
-                    <div className="text-center my-3">
+                    <div className="text-center">
                         <h2 id="session_title">{this.state.sessionName}</h2>
                         <p>Current Turn:</p>
                         <p id="player_turn">{current}</p>
@@ -519,7 +519,7 @@ export class Session extends React.Component {
         }
 
         return (
-            <div id="session_details" className="container my-3 session-div">
+            <div id="session_details" className="container session-div">
                 {element}
             </div>
         );

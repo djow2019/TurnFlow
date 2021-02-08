@@ -84,7 +84,7 @@ export class Auth extends React.Component {
         let display;
         if (this.state.user) {
             display = (
-                <span>
+                <span id="g-signin">
                     <span>Hello, {this.state.user}! &nbsp;</span>
                     <GoogleLogout
                         clientId="751871651181-mpurrs53asglio3lp464eq6f4cdaa9hu.apps.googleusercontent.com"
@@ -95,7 +95,7 @@ export class Auth extends React.Component {
             );
         } else {
             display = (
-                <span>
+                <span id="g-signin">
                     <GoogleLogin
                         clientId="751871651181-mpurrs53asglio3lp464eq6f4cdaa9hu.apps.googleusercontent.com"
                         buttonText="Login"
