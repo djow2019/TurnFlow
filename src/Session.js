@@ -72,7 +72,7 @@ export class Session extends React.Component {
 
         let sid = this.props.match.params.id;
 
-        if (sid == null || sid == "") {
+        if (sid === null || sid === "") {
             alert("Invalid session ID");
             window.location = "/session";
             return;
@@ -138,7 +138,7 @@ export class Session extends React.Component {
                     }
                 }
 
-                if (connectedPlayers.length > updatedPlayerList.length || updatedPlayerList.length != ctrl.state.turnOrder.length || removed) {
+                if (connectedPlayers.length > updatedPlayerList.length || updatedPlayerList.length !== ctrl.state.turnOrder.length || removed) {
 
                     for (let i = 0; i < connectedPlayers.length; i++) {
                         if (!updatedPlayerList.includes(connectedPlayers[i])) {
@@ -157,8 +157,23 @@ export class Session extends React.Component {
     updateTurnOrder(turnOrder) {
         let ctrl = this;
         this.database.write("/sessions/" + this.state.sessionId + "/turnOrder", turnOrder).then(function (success) {
-            ctrl.setState({turnOrder: turnOrder});
-            ctrl.changeInitiativeTurnOrder = turnOrder;
+
+            let changeInitiativeList = [];
+            let changeInitiativeTurnOrder = [];
+            for (let i = 0; i < turnOrder.length; i++) {
+
+                changeInitiativeList.push((
+                    <li key={i}>
+                        <span>{ctrl.state.uuid_character_dict[turnOrder[i]].character}</span>
+                        <button className="btn btn-warning mx-3" onClick={() => ctrl.shiftUp(turnOrder[i])}>Up</button>
+                        <button className="btn btn-warning mx-3" onClick={() => ctrl.shiftDown(turnOrder[i])}>Down</button>
+                    </li>
+                ));
+                changeInitiativeTurnOrder.push(turnOrder[i]);
+            }
+            ctrl.changeInitiativeTurnOrder = changeInitiativeTurnOrder;
+            ctrl.setState({turnOrder: turnOrder, changeInitiativeList: changeInitiativeList});
+
         }, function (failure) {
             alert("Failed to update player list.");
         });
@@ -271,12 +286,12 @@ export class Session extends React.Component {
 
         let index = this.changeInitiativeTurnOrder.indexOf(uid);
 
-        if (index == 0) {
+        if (index === 0) {
             return;
         }
 
         let turnOrder = this.state.changeInitiativeList;
-        turnOrder = turnOrder.slice(0, index-1).concat(turnOrder[index]).concat(turnOrder[index-1]).concat(turnOrder.slice(index + 1));
+        turnOrder = turnOrder.slice(0, index - 1).concat(turnOrder[index]).concat(turnOrder[index - 1]).concat(turnOrder.slice(index + 1));
         this.setState({changeInitiativeList: turnOrder});
 
         this.changeInitiativeTurnOrder[index] = this.changeInitiativeTurnOrder[index - 1];
@@ -287,7 +302,7 @@ export class Session extends React.Component {
 
         let index = this.changeInitiativeTurnOrder.indexOf(uid);
 
-        if (index ==  this.changeInitiativeTurnOrder.length - 1) {
+        if (index === this.changeInitiativeTurnOrder.length - 1) {
             return;
         }
 
@@ -320,7 +335,7 @@ export class Session extends React.Component {
     async showCharacterModal(dm) {
 
         let result;
-        if (this.state.uid == dm) {
+        if (this.state.uid === dm) {
             result = {"selected": "dm"};
         } else {
             result = await CustomDialog(<ChooseCharacterDialog uid={this.state.uid} dm={dm}></ChooseCharacterDialog>, {title: "Character Selection", showCloseIcon: false, isCanClose: false});
@@ -328,7 +343,7 @@ export class Session extends React.Component {
 
         this.state.characterSelected = true;
 
-        if (result["selected"] == "dm") {
+        if (result["selected"] === "dm") {
             this.joinSessionAsDM();
         } else {
             this.joinSessionAsPlayer(result["selected"]);
@@ -354,7 +369,7 @@ export class Session extends React.Component {
 
                 if (response.turnOrder) {
 
-                    if (ctrl.changeInitiativeTurnOrder.length == 0 || ctrl.state.turnOrder.length != response.turnOrder.length) {
+                    if (ctrl.changeInitiativeTurnOrder.length === 0 || ctrl.state.turnOrder.length !== response.turnOrder.length) {
                         changeInitiative = true;
                         changeInitiativeList = [];
                         changeInitiativeTurnOrder = [];
@@ -445,7 +460,7 @@ export class Session extends React.Component {
 
         if (this.state.uid) {
 
-            if (this.state.uid == this.state.dm) {
+            if (this.state.uid === this.state.dm) {
 
                 let pause_text = "Play";
                 if (!this.state.paused) {
@@ -473,7 +488,7 @@ export class Session extends React.Component {
                 );
             }
 
-            let current = "No Players Joined";
+            let current = "No Players Joined Or DM is not connected.";
             if (this.state.turnOrder.length > 0) {
                 current = this.state.uuid_character_dict[this.state.turnOrder[0]].character;
             }

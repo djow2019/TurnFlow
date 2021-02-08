@@ -11,7 +11,7 @@ class Panel extends React.Component {
         let title;
         let description;
 
-        if (choice == "host") {
+        if (choice === "host") {
             title = "Host a session";
             description = "Select this to create a new campaign. The user who creates the session will be the registered DM";
         } else {
@@ -74,12 +74,12 @@ export class SessionList extends React.Component {
             let status;
 
             // new user or first this.state.time user
-            if (response == null || Object.keys(response).length == 0) {
+            if (response === null || Object.keys(response).length === 0) {
                 status = (<div>There are no active sessions!</div>);
             } else {
 
                 let numSessions = Object.keys(response).length;
-                if (numSessions == 1) {
+                if (numSessions === 1) {
                     status = (<div>There is 1 active session</div>)
                 } else {
                     status = (<div>There are {numSessions} active sessions</div>)
@@ -111,7 +111,7 @@ export class SessionList extends React.Component {
     createSession() {
         let sname = document.getElementById("session_name").value;
 
-        if (sname == null || sname == "") {
+        if (sname === null || sname === "") {
             alert("Must have valid session name");
             return;
         }
@@ -120,7 +120,6 @@ export class SessionList extends React.Component {
         let sid = Math.floor(Math.random() * 1000000);
 
         let data = {"name": sname, "paused": true, "timer": 60, "dm": this.state.uid};
-        let ctrl = this;
         this.database.write("/sessions/" + sid, data).then(function (response) {
             // success
             window.location = "/session/" + sid;
@@ -165,7 +164,7 @@ export class SessionList extends React.Component {
             );
         } else {
 
-            if (this.state.choice == "join") {
+            if (this.state.choice === "join") {
                 selectChoice = (
                     <div>
                         {this.state.activeSessions}
