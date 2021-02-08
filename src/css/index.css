@@ -43,10 +43,19 @@ body {
 }
 
 .home-panel {
-  width: 400px;
-  height: 400px;
+   width: 400px;
+   height: 400px;
+   background-color: slategray;
+   border-radius: 10px;
+   text-align: center;
+ }
+
+.session-panel {
+  width: 500px;
+  height: 500px;
   background-color: slategray;
   border-radius: 10px;
+  text-align: center;
 }
 
 .home-panel:hover {

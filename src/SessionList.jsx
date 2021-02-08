@@ -2,6 +2,8 @@ import React from "react";
 import firebase from "firebase";
 import {Database} from "./Database";
 import {TablePagination} from 'react-pagination-table';
+import swordLogo from './img/sword.png';
+import torchLogo from './img/torch.png';
 
 class Panel extends React.Component {
 
@@ -10,19 +12,22 @@ class Panel extends React.Component {
         let choice = this.props.choice;
         let title;
         let description;
+        let imgLink;
 
         if (choice === "host") {
             title = "Host a session";
             description = "Select this to create a new campaign. The user who creates the session will be the registered DM";
+            imgLink = torchLogo;
         } else {
             title = "Join an existing session";
             description = "Select this to join a session that is already created. You will asked be asked to choose a character. If you are the creator of that session, you will join as DM.";
+            imgLink = swordLogo;
         }
 
         return (
-            <div className="home-panel" onClick={this.props.click}>
+            <div className="session-panel" onClick={this.props.click}>
                 <h3>{title}</h3>
-                <div style={{height: 100}}></div>
+                <img src={imgLink} title={title}/>
                 <p>{description}</p>
             </div>
         )
